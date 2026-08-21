@@ -3,6 +3,7 @@ import express from 'express'
 
 const app = express();
 const PORT = 8000;
+app.use(express.json())
 
 let tasks = [
     { id: 1, title: "Buy milk", done: false },
@@ -12,6 +13,10 @@ let tasks = [
 
 let nextId = 4;
 
+
+
+
+// get apis
 
 app.get("/", (req, res) => {
     res.json({
@@ -47,7 +52,28 @@ app.get("/task/:id", (req, res) => {
 
 
 
+// post apis
 
+app.post('/tasks', (req, res) => {
+    const { title } = req.body;
+
+    if (!title || title.trim() === '') {
+        return res.status(400).json({
+            error: "title is required and cannot be empty"
+        });
+    }
+
+    const newTask = {
+        id: nextId,
+        title,
+        done: false
+    };
+
+    nextId++;
+    tasks.push(newTask);
+
+    res.status(201).json(newTask);
+});
 
 
 
