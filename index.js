@@ -78,7 +78,48 @@ app.post('/tasks', (req, res) => {
 
 
 
+// put api
+app.put('/tasks/:id', (req, res) => {
+    const id = Number(req.params.id);
+    const task = tasks.find(t => t.id === id);
 
+    if (!task) {
+        return res.status(404).json({
+            error: `Task ${id} not found`
+        });
+    }
+
+    const { title, done } = req.body;
+
+    if (title !== undefined && title.trim() === '') {
+        return res.status(400).json({
+            error: "title cannot be empty"
+        });
+    }
+
+    if (title !== undefined) task.title = title;
+    if (done !== undefined) task.done = done;
+
+    res.json(task);
+});
+
+
+// delete api
+
+app.delete('/tasks/:id', (req, res) => {
+    const id = Number(req.params.id);
+    const index = tasks.findIndex(t => t.id === id);
+
+    if (index === -1) {
+        return res.status(404).json({
+            error: `Task ${id} not found`
+        });
+    }
+
+    tasks.splice(index, 1);
+
+    res.status(204).send();
+});
 
 
 
