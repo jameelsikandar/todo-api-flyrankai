@@ -6,9 +6,19 @@ const app = express();
 
 
 app.get("/", (req, res) => {
-    res.send("Hello World!")
+    res.json({
+        name: "Tasks API",
+        version: "1.0.0.0",
+        endpoints: ["/tasks"]
+    })
 })
 
+
+app.get("/health", (req, res) => {
+    res.json({
+        status: "ok"
+    })
+})
 
 
 
