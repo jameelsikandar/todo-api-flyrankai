@@ -1,4 +1,6 @@
 import express from 'express'
+import swaggerUi from 'swagger-ui-express'
+import openapiSpec from './openapi.json' with { type: 'json' };
 
 
 const app = express();
@@ -13,7 +15,9 @@ let tasks = [
 
 let nextId = 4;
 
+// swagger- ui
 
+app.use('/docs', swaggerUi.serve, swaggerUi.setup(openapiSpec));
 
 
 // get apis
