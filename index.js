@@ -1,8 +1,16 @@
 import express from 'express'
 
-const PORT = 8000;
 
 const app = express();
+const PORT = 8000;
+
+let tasks = [
+    { id: 1, title: "Buy milk", done: false },
+    { id: 2, title: "Walk the dog", done: false },
+    { id: 3, title: "Finish assignment", done: true }
+];
+
+let nextId = 4;
 
 
 app.get("/", (req, res) => {
