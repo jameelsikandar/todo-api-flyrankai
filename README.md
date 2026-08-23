@@ -7,7 +7,7 @@ A simple CRUD API for managing a to-do list, built with Node.js and Express.
 1. Clone this repo
 2. Run `npm install`
 3. Run `npm start`
-4. Server runs at [http://localhost:8000](http://localhost:8000)
+4. Server runs at [http://localhost:3000](http://localhost:3000)
 
 ## Endpoints
 
@@ -22,7 +22,7 @@ A simple CRUD API for managing a to-do list, built with Node.js and Express.
 ## Example request
 
 ```bash
-curl -i -X POST http://localhost:8000/tasks \
+curl -i -X POST http://localhost:3000/tasks \
 -H "Content-Type: application/json" \
 -d '{"title":"Buy milk"}'
 
@@ -60,3 +60,25 @@ Zero setup, no separate server to install, and the whole database is stored in o
 
 ```sql
 SELECT * FROM tasks WHERE done = 1;
+
+
+
+## Assignment 3 dockerize your app
+## Containerized Stack
+
+This project runs in Docker with `docker compose up` — no manual setup needed.
+
+**Run it:**
+1. Copy `.env.example` to `.env`
+2. Run `docker compose up`
+3. API is available at http://localhost:3000
+
+**Architecture note:** SQLite storage is isolated inside `repositories/taskRepository.js`. 
+When containerizing the app, the service layer (`services/taskService.js`) and all routes 
+in `index.js` were not modified — only the repository and `db/` files changed. This proves 
+the repository pattern isolates storage from business logic.
+
+**Persistence proof:** Created a task via POST, ran `docker compose down` then `docker compose up` 
+again, and confirmed via `GET /tasks` that the task still existed — the named volume (`taskdata`) 
+kept the SQLite file alive across a full container teardown and rebuild.
+
