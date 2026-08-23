@@ -104,6 +104,27 @@ app.get('/tasks/:id', (req, res) => {
 
 // post apis
 
+// app.post('/tasks', (req, res) => {
+//     const { title } = req.body;
+
+//     if (!title || title.trim() === '') {
+//         return res.status(400).json({
+//             error: "title is required and cannot be empty"
+//         });
+//     }
+
+//     const newTask = {
+//         id: nextId,
+//         title,
+//         done: false
+//     };
+
+//     nextId++;
+//     tasks.push(newTask);
+
+//     res.status(201).json(newTask);
+// });
+
 app.post('/tasks', (req, res) => {
     const { title } = req.body;
 
@@ -113,14 +134,15 @@ app.post('/tasks', (req, res) => {
         });
     }
 
-    const newTask = {
-        id: nextId,
-        title,
-        done: false
-    };
+    const insert = db.prepare(
+        'INSERT INTO tasks (title, done) VALUES (?, ?)'
+    );
 
-    nextId++;
-    tasks.push(newTask);
+    const result = insert.run(title, 0);
+
+    const newTask = db
+        .prepare('SELECT * FROM tasks WHERE id = ?')
+        .get(result.lastInsertRowid);
 
     res.status(201).json(newTask);
 });
