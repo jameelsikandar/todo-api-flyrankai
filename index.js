@@ -1,19 +1,30 @@
 import express from 'express'
 import swaggerUi from 'swagger-ui-express'
 import openapiSpec from './openapi.json' with { type: 'json' };
-
+import Database from 'better-sqlite3';
 
 const app = express();
 const PORT = 8000;
 app.use(express.json())
 
-let tasks = [
-    { id: 1, title: "Buy milk", done: false },
-    { id: 2, title: "Walk the dog", done: false },
-    { id: 3, title: "Finish assignment", done: true }
-];
+// stated assignment 2. connecting to databse
+const db = new Database('tasks.db');
 
-let nextId = 4;
+db.exec(`
+  CREATE TABLE IF NOT EXISTS tasks (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    title TEXT NOT NULL,
+    done INTEGER NOT NULL DEFAULT 0
+  )
+`);
+
+// let tasks = [
+//     { id: 1, title: "Buy milk", done: false },
+//     { id: 2, title: "Walk the dog", done: false },
+//     { id: 3, title: "Finish assignment", done: true }
+// ];
+
+// let nextId = 4;
 
 // swagger- ui
 
