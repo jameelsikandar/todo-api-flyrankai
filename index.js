@@ -18,6 +18,19 @@ db.exec(`
   )
 `);
 
+
+const count = db.prepare('SELECT COUNT(*) AS count FROM tasks').get().count;
+
+if (count === 0) {
+    const insert = db.prepare(
+        'INSERT INTO tasks (title, done) VALUES (?, ?)'
+    );
+
+    insert.run('Buy milk', 0);
+    insert.run('Walk the dog', 0);
+    insert.run('Finish assignment', 1);
+}
+
 // let tasks = [
 //     { id: 1, title: "Buy milk", done: false },
 //     { id: 2, title: "Walk the dog", done: false },
@@ -33,13 +46,19 @@ app.use('/docs', swaggerUi.serve, swaggerUi.setup(openapiSpec));
 
 // get apis
 
-app.get("/", (req, res) => {
-    res.json({
-        name: "Tasks API",
-        version: "1.0.0.0",
-        endpoints: ["/tasks"]
-    })
-})
+// app.get("/", (req, res) => {
+//     res.json({
+//         name: "Tasks API",
+//         version: "1.0.0.0",
+//         endpoints: ["/tasks"]
+//     })
+// })
+
+app.get('/tasks', (req, res) => {
+    const tasks = db.prepare('SELECT * FROM tasks').all();
+
+    res.json(tasks);
+});
 
 
 app.get("/health", (req, res) => {
@@ -52,18 +71,34 @@ app.get("/tasks", (req, res) => {
     res.json(tasks)
 })
 
-app.get("/task/:id", (req, res) => {
+// app.get("/task/:id", (req, res) => {
+//     const id = Number(req.params.id);
+
+//     const task = tasks.find(t => t.id === id);
+
+//     if (!task) {
+//         return res.status(404).json({ "error": `Task ${id} not found` })
+//     }
+
+
+//     res.json(task)
+// })
+
+app.get('/tasks/:id', (req, res) => {
     const id = Number(req.params.id);
 
-    const task = tasks.find(t => t.id === id);
+    const task = db
+        .prepare('SELECT * FROM tasks WHERE id = ?')
+        .get(id);
 
     if (!task) {
-        return res.status(404).json({ "error": `Task ${id} not found` })
+        return res.status(404).json({
+            error: `Task ${id} not found`
+        });
     }
 
-
-    res.json(task)
-})
+    res.json(task);
+});
 
 
 
