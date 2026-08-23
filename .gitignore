@@ -5,6 +5,9 @@ node_modules/
 node_modules/
 node_modules/
 
+node_modules/
+tasks.db
+
 # Environment variables
 .env
 .env.*

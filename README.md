@@ -42,3 +42,21 @@ Swagger UI
 Visit http://localhost:8000/docs for interactive API documentation.
 
 ![alt text](ui-image.png)
+
+
+
+# ASSignment 2
+## Database
+
+This project uses SQLite instead of an in-memory array, so data survives server restarts.
+
+**Why SQLite:**  
+Zero setup, no separate server to install, and the whole database is stored in one file (`tasks.db`). The database is created automatically the first time the app runs.
+
+**Where it lives:**  
+`tasks.db` is created in the project root. It is git-ignored, so each clone starts with a fresh database that is automatically created and seeded with 3 example tasks on the first run.
+
+**Example query I ran in DB Browser:**
+
+```sql
+SELECT * FROM tasks WHERE done = 1;
