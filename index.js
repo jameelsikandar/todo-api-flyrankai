@@ -4,6 +4,7 @@ import initDb from './db/init.js';
 import taskService from './services/takeService.js';
 import swaggerUi from 'swagger-ui-express';
 import openapiSpec from './openapi.json' with { type: 'json' };
+import supabase from './db/supabaseClient.js';
 
 dotenv.config();
 
@@ -92,10 +93,10 @@ app.delete('/tasks/:id', (req, res) => {
     }
 });
 
-initDb();
+// initDb();
 
 app.listen(PORT, () => {
     console.log(
-        `Server running on http://localhost:${PORT}`
+        `Server running on http://localhost:${PORT} and connected to supabase`
     );
 });
