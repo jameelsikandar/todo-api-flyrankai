@@ -1,10 +1,168 @@
 {
     "openapi": "3.0.0",
     "info": {
-        "title": "Task API",
-        "version": "1.0.0"
+        "title": "Task & Auth API",
+        "version": "1.0.0",
+        "description": "API featuring Task Management, Supabase Authentication, and Bearer Token route protection."
+    },
+    "servers": [
+        {
+            "url": "http://localhost:3000",
+            "description": "Local server"
+        }
+    ],
+    "components": {
+        "securitySchemes": {
+            "bearerAuth": {
+                "type": "http",
+                "scheme": "bearer",
+                "bearerFormat": "JWT",
+                "description": "Enter your Supabase JWT access token obtained from /auth/login"
+            }
+        }
     },
     "paths": {
+        "/auth/signup": {
+            "post": {
+                "summary": "Create a new user account",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "type": "object",
+                                "required": [
+                                    "email",
+                                    "password"
+                                ],
+                                "properties": {
+                                    "email": {
+                                        "type": "string",
+                                        "example": "test@example.com"
+                                    },
+                                    "password": {
+                                        "type": "string",
+                                        "example": "password123"
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "201": {
+                        "description": "User created successfully"
+                    },
+                    "400": {
+                        "description": "Bad Request - Missing email/password or signup error"
+                    }
+                }
+            }
+        },
+        "/auth/login": {
+            "post": {
+                "summary": "Authenticate user & return JWT tokens",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "type": "object",
+                                "required": [
+                                    "email",
+                                    "password"
+                                ],
+                                "properties": {
+                                    "email": {
+                                        "type": "string",
+                                        "example": "test@example.com"
+                                    },
+                                    "password": {
+                                        "type": "string",
+                                        "example": "password123"
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Login successful - returns access_token & refresh_token"
+                    },
+                    "400": {
+                        "description": "Bad Request - Missing email/password"
+                    },
+                    "401": {
+                        "description": "Unauthorized - Invalid credentials"
+                    }
+                }
+            }
+        },
+        "/auth/logout": {
+            "post": {
+                "summary": "Terminate user session",
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ],
+                "responses": {
+                    "204": {
+                        "description": "No Content - Successfully logged out"
+                    },
+                    "401": {
+                        "description": "Unauthorized - Missing or invalid token"
+                    }
+                }
+            }
+        },
+        "/public/info": {
+            "get": {
+                "summary": "Read public, unprotected data",
+                "responses": {
+                    "200": {
+                        "description": "Public info message"
+                    }
+                }
+            }
+        },
+        "/protected/profile": {
+            "get": {
+                "summary": "Read private user profile data",
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "User profile metadata"
+                    },
+                    "401": {
+                        "description": "Unauthorized - Missing or invalid token"
+                    }
+                }
+            }
+        },
+        "/protected/dashboard": {
+            "get": {
+                "summary": "Read protected dashboard data",
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Dashboard welcome message"
+                    },
+                    "401": {
+                        "description": "Unauthorized - Missing or invalid token"
+                    }
+                }
+            }
+        },
         "/tasks": {
             "get": {
                 "summary": "List all tasks",
