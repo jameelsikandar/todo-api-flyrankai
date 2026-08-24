@@ -82,3 +82,14 @@ the repository pattern isolates storage from business logic.
 again, and confirmed via `GET /tasks` that the task still existed — the named volume (`taskdata`) 
 kept the SQLite file alive across a full container teardown and rebuild.
 
+# Auth & Protect API
+
+A secure RESTful API built with Node.js, Express, and Supabase Auth. This project handles user authentication (Sign Up, Log In, Log Out) and protects specific API endpoints using JWT Bearer Token verification.
+
+##  Features
+
+- **User Authentication:** Sign up and log in via Supabase Auth.
+- **Route Protection:** Custom Express middleware (`requireAuth`) verifies JWTs.
+- **API Documentation:** Interactive Swagger UI documentation with Bearer Token authorization support.
+
+---
