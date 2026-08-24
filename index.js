@@ -5,21 +5,23 @@ import taskService from './services/takeService.js';
 import swaggerUi from 'swagger-ui-express';
 import openapiSpec from './openapi.json' with { type: 'json' };
 import supabase from './db/supabaseClient.js';
+import { requireAuth } from './middlewares/auth.js';
 
 dotenv.config();
 
 const app = express();
-
 const PORT = 3000;
 
 app.use(express.json());
 
+// Swagger Documentation
 app.use(
     '/docs',
     swaggerUi.serve,
     swaggerUi.setup(openapiSpec)
 );
 
+// Basic routes
 app.get('/', (req, res) => {
     res.json({
         name: 'Task API',
@@ -34,25 +36,7 @@ app.get('/health', (req, res) => {
     });
 });
 
-app.get('/tasks', (req, res) => {
-    res.json(taskService.listTasks());
-});
-
-app.get('/tasks/:id', (req, res) => {
-    const task = taskService.getTask(
-        Number(req.params.id)
-    );
-
-    if (!task) {
-        return res.status(404).json({
-            error: `Task ${req.params.id} not found`
-        });
-    }
-
-    res.json(task);
-});
-
-// auth routes
+// Auth routes
 app.post('/auth/signup', async (req, res) => {
     const { email, password } = req.body;
 
@@ -104,10 +88,62 @@ app.post('/auth/login', async (req, res) => {
     });
 });
 
+app.post('/auth/logout', requireAuth, async (req, res) => {
+    const { error } = await supabase.auth.signOut();
+
+    if (error) {
+        return res.status(400).json({
+            error: error.message
+        });
+    }
+
+    res.status(204).send();
+});
+
+// Public route
+app.get('/public/info', (req, res) => {
+    res.status(200).json({
+        message: 'Welcome stranger! This info is public.'
+    });
+});
+
+// Protected routes (Using requireAuth middleware)
+app.get('/protected/profile', requireAuth, (req, res) => {
+    res.status(200).json({
+        id: req.user.id,
+        email: req.user.email,
+        created_at: req.user.created_at
+    });
+});
+
+app.get('/protected/dashboard', requireAuth, (req, res) => {
+    res.status(200).json({
+        message: `Welcome to your dashboard, ${req.user.email}!`
+    });
+});
+
+// Task routes
+app.get('/tasks', (req, res) => {
+    res.json(taskService.listTasks());
+});
+
+app.get('/tasks/:id', (req, res) => {
+    const task = taskService.getTask(
+        Number(req.params.id)
+    );
+
+    if (!task) {
+        return res.status(404).json({
+            error: `Task ${req.params.id} not found`
+        });
+    }
+
+    res.json(task);
+});
+
 app.post('/tasks', (req, res) => {
     try {
         const task = taskService.createTask(req.body.title);
-
         res.status(201).json(task);
     } catch (err) {
         res.status(err.status || 500).json({
@@ -144,53 +180,6 @@ app.delete('/tasks/:id', (req, res) => {
         });
     }
 });
-
-
-
-// stage 2 
-// public route
-app.get('/public/info', (req, res) => {
-    res.status(200).json({
-        message: 'Welcome stranger! This info is public.'
-    });
-});
-
-// protected route (with Supabase token verification)
-app.get('/protected/profile', async (req, res) => {
-    const authHeader = req.headers.authorization;
-
-    if (!authHeader || !authHeader.startsWith('Bearer ')) {
-        return res.status(401).json({
-            error: 'Access token required'
-        });
-    }
-
-    const token = authHeader.split(' ')[1];
-
-    if (!token) {
-        return res.status(401).json({
-            error: 'Access token required'
-        });
-    }
-
-    // Verify token with Supabase
-    const { data, error } = await supabase.auth.getUser(token);
-
-    if (error || !data.user) {
-        return res.status(401).json({
-            error: 'Invalid or expired token'
-        });
-    }
-
-    // Successfully verified
-    res.status(200).json({
-        id: data.user.id,
-        email: data.user.email,
-        created_at: data.user.created_at
-    });
-});
-
-
 
 // initDb();
 
